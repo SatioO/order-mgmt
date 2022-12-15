@@ -3,6 +3,8 @@ package models
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -40,19 +42,21 @@ func NewOrderRepo(db *dynamodb.Client) *OrderRepo {
 
 func (o OrderRepo) CreateOrder(body *pb.CreateOrderRequest) (*pb.OrderResponse, error) {
 	orderId, _ := uuid.NewUUID()
-	customerId, _ := uuid.NewUUID()
-	sellerId, _ := uuid.NewUUID()
 
-	o.db.PutItem(context.TODO(), &dynamodb.PutItemInput{
+	_, err := o.db.PutItem(context.TODO(), &dynamodb.PutItemInput{
 		TableName: aws.String(viper.GetString("DB_TABLE")),
 		Item: map[string]types.AttributeValue{
-			"PK":            &types.AttributeValueMemberS{Value: fmt.Sprintf("ORDER#%s", orderId)},
-			"SK":            &types.AttributeValueMemberS{Value: fmt.Sprintf("ORDER#%s", orderId)},
-			"customerId":    &types.AttributeValueMemberS{Value: customerId.String()},
-			"sellerId":      &types.AttributeValueMemberS{Value: sellerId.String()},
-			"paymentMethod": &types.AttributeValueMemberS{Value: "CREDIT_CARD"},
+			"PK":               &types.AttributeValueMemberS{Value: fmt.Sprintf("ORDER#%s", orderId)},
+			"SK":               &types.AttributeValueMemberS{Value: fmt.Sprintf("ORDER#%s", orderId)},
+			"customerId":       &types.AttributeValueMemberS{Value: body.DeliveryLocation},
+			"sellerId":         &types.AttributeValueMemberN{Value: strconv.Itoa(int(body.SellerId))},
+			"paymentMethod":    &types.AttributeValueMemberS{Value: body.PaymentMethod.Enum().String()},
+			"deliveryLocation": &types.AttributeValueMemberS{Value: body.DeliveryLocation},
+			"orderStatus":      &types.AttributeValueMemberS{Value: "ORDER_CREATED"},
+			"createdTimestamp": &types.AttributeValueMemberS{Value: time.Now().String()},
+			"updatedTimestamp": &types.AttributeValueMemberS{Value: time.Now().String()},
 		},
 	})
 
-	return nil, nil
+	return &pb.OrderResponse{OrderId: orderId.String()}, err
 }

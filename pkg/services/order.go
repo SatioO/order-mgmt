@@ -19,6 +19,5 @@ func NewOrderService(repo *models.OrderRepo) *orderService {
 }
 
 func (o orderService) CreateOrder(ctx context.Context, body *pb.CreateOrderRequest) (*pb.OrderResponse, error) {
-	o.repo.CreateOrder(body)
-	return &pb.OrderResponse{}, nil
+	return o.repo.CreateOrder(body)
 }
