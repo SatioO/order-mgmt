@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package order;
+
+option go_package = "./pkg/pb";
+
+service OrderService {
+    rpc CreateOrder(CreateOrderRequest) returns (OrderResponse) {}
+}
+
+enum PaymentMethod {
+    WALLET = 0;
+    CREDIT_CARD = 1;
+}
+
+message CreateOrderRequest {
+    int32 customerId = 1;
+    int32 sellerId = 2;
+    Product product = 3;
+    PaymentMethod paymentMethod = 4;
+    string deliveryLocation = 5;
+}
+
+message Product {
+    int32 productId = 1;
+    string productName = 2;
+}
+
+message OrderResponse {
+    int32 customerId = 1;
+    int32 sellerId = 2;
+    Product product = 3;
+    string paymentMethod = 4;
+    string deliveryLocation = 5;
+    string orderId = 6;
+    string orderStatus = 7;
+    string createdTime = 8;
+    string updatedTime = 9;
+}
