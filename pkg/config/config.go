@@ -10,7 +10,7 @@ import (
 type Config struct {
 	Port string `mapstructure:"SERVICE_PORT" validate:"required"`
 
-	DynamoDBTable string `mapstructure:"DB_TABLE_NAME" validate:"required"`
+	DynamoDBTable string `mapstructure:"DB_TABLE" validate:"required"`
 
 	AwsRegion string `mapstructure:"AWS_REGION" validate:"required"`
 }

@@ -3,21 +3,22 @@ package services
 import (
 	"context"
 
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/satioO/order-mgmt/pkg/models"
 	"github.com/satioO/order-mgmt/pkg/pb"
 )
 
 type orderService struct {
 	pb.UnimplementedOrderServiceServer
-	db *dynamodb.Client
+	repo *models.OrderRepo
 }
 
-func NewOrderService(db *dynamodb.Client) *orderService {
+func NewOrderService(repo *models.OrderRepo) *orderService {
 	return &orderService{
-		db: db,
+		repo: repo,
 	}
 }
 
-func (orderService) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.OrderResponse, error) {
+func (o orderService) CreateOrder(ctx context.Context, body *pb.CreateOrderRequest) (*pb.OrderResponse, error) {
+	o.repo.CreateOrder(body)
 	return &pb.OrderResponse{}, nil
 }

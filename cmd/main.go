@@ -6,6 +6,7 @@ import (
 
 	"github.com/satioO/order-mgmt/pkg/config"
 	"github.com/satioO/order-mgmt/pkg/db"
+	"github.com/satioO/order-mgmt/pkg/models"
 	"github.com/satioO/order-mgmt/pkg/pb"
 	"github.com/satioO/order-mgmt/pkg/services"
 	"google.golang.org/grpc"
@@ -29,7 +30,8 @@ func main() {
 	grpcServer := grpc.NewServer()
 
 	// order service registration
-	orderSvc := services.NewOrderService(dbCon)
+	orderRepo := models.NewOrderRepo(dbCon)
+	orderSvc := services.NewOrderService(orderRepo)
 	pb.RegisterOrderServiceServer(grpcServer, orderSvc)
 
 	log.Printf("Order Mgmt Service is running at PORT %s", c.Port)
