@@ -6,10 +6,14 @@ import (
 	"github.com/satioO/order-mgmt/pkg/pb"
 )
 
-type OrderService struct {
+type orderService struct {
 	pb.UnimplementedOrderServiceServer
 }
 
-func (OrderService) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.OrderResponse, error) {
-	return nil, nil
+func NewOrderService() *orderService {
+	return &orderService{}
+}
+
+func (orderService) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.OrderResponse, error) {
+	return &pb.OrderResponse{}, nil
 }

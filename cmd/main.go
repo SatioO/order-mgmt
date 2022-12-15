@@ -25,10 +25,12 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 
-	orderSvc := services.OrderService{}
-	pb.RegisterOrderServiceServer(grpcServer, &orderSvc)
+	// Order service registration
+	orderSvc := services.NewOrderService()
+	pb.RegisterOrderServiceServer(grpcServer, orderSvc)
 
-	log.Println("Order Mgmt Service is running at PORT 3000")
+	log.Printf("Order Mgmt Service is running at PORT %s", c.Port)
+
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalln("Failed to serve", err)
 	}
