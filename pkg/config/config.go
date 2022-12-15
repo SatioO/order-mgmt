@@ -1,9 +1,18 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"log"
+
+	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
+)
 
 type Config struct {
-	Port string `mapstructure:"PORT" validate:"required"`
+	Port string `mapstructure:"SERVICE_PORT" validate:"required"`
+
+	DynamoDBTable string `mapstructure:"DB_TABLE_NAME" validate:"required"`
+
+	AwsRegion string `mapstructure:"AWS_REGION" validate:"required"`
 }
 
 func LoadConfig() (config Config, err error) {
@@ -20,6 +29,10 @@ func LoadConfig() (config Config, err error) {
 	}
 
 	err = viper.Unmarshal(&config)
+	validate := validator.New()
+	if err := validate.Struct(&config); err != nil {
+		log.Fatalf("Missing required attributes %v\n", err)
+	}
 
 	return
 }

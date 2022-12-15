@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/satioO/order-mgmt/pkg/config"
+	"github.com/satioO/order-mgmt/pkg/db"
 	"github.com/satioO/order-mgmt/pkg/pb"
 	"github.com/satioO/order-mgmt/pkg/services"
 	"google.golang.org/grpc"
@@ -17,6 +18,8 @@ func main() {
 		log.Fatalln("Failed to load config", err)
 	}
 
+	dbCon := db.Init()
+
 	lis, err := net.Listen("tcp", c.Port)
 
 	if err != nil {
@@ -25,8 +28,8 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 
-	// Order service registration
-	orderSvc := services.NewOrderService()
+	// order service registration
+	orderSvc := services.NewOrderService(dbCon)
 	pb.RegisterOrderServiceServer(grpcServer, orderSvc)
 
 	log.Printf("Order Mgmt Service is running at PORT %s", c.Port)
