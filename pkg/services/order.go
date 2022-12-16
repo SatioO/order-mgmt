@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,12 +13,14 @@ import (
 
 type orderService struct {
 	pb.UnimplementedOrderServiceServer
-	repo *models.OrderRepo
+	orderRepo     *models.OrderRepo
+	orderItemRepo *models.OrderItemRepo
 }
 
-func NewOrderService(repo *models.OrderRepo) *orderService {
+func NewOrderService(orderRepo *models.OrderRepo, orderItemRepo *models.OrderItemRepo) *orderService {
 	return &orderService{
-		repo: repo,
+		orderRepo:     orderRepo,
+		orderItemRepo: orderItemRepo,
 	}
 }
 
@@ -25,14 +28,10 @@ func (o orderService) CreateOrder(ctx context.Context, body *pb.CreateOrderReque
 	orderId, _ := uuid.NewUUID()
 
 	order := models.Order{
-		PK:         fmt.Sprintf("ORDER#%s", orderId),
-		SK:         fmt.Sprintf("ORDER#%s", orderId),
-		CustomerID: body.CustomerId,
-		SellerID:   body.SellerId,
-		Product: models.Product{
-			ProductID:   body.Product.ProductId,
-			ProductName: body.Product.ProductName,
-		},
+		PK:               fmt.Sprintf("ORDER#%s", orderId),
+		SK:               fmt.Sprintf("ORDER#%s", orderId),
+		CustomerID:       body.CustomerId,
+		SellerID:         body.SellerId,
 		PaymentMethod:    body.PaymentMethod.String(),
 		DeliveryLocation: body.DeliveryLocation,
 		OrderStatus:      "ORDER_CREATED",
@@ -40,5 +39,26 @@ func (o orderService) CreateOrder(ctx context.Context, body *pb.CreateOrderReque
 		UpdatedTimestamp: time.Now().String(),
 	}
 
-	return o.repo.CreateOrder(order)
+	createdOrder, err := o.orderRepo.CreateOrder(order)
+
+	var wg sync.WaitGroup
+	wg.Add(len(body.Products))
+
+	for _, product := range body.Products {
+		go func(product *pb.Product) {
+			orderItemId, _ := uuid.NewUUID()
+			o.orderItemRepo.CreateOrderItem(models.OrderItem{
+				PK:               fmt.Sprintf("ORDER#%s", orderId),
+				SK:               fmt.Sprintf("ORDERITEM#%s", orderItemId),
+				ProductName:      product.ProductName,
+				CreatedTimestamp: time.Now().String(),
+				UpdatedTimestamp: time.Now().String(),
+			})
+			wg.Done()
+		}(product)
+	}
+
+	wg.Wait()
+
+	return createdOrder, err
 }

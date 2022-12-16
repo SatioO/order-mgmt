@@ -31,7 +31,8 @@ func main() {
 
 	// order service registration
 	orderRepo := models.NewOrderRepo(dbCon)
-	orderSvc := services.NewOrderService(orderRepo)
+	orderItemRepo := models.NewOrderItemRepo(dbCon)
+	orderSvc := services.NewOrderService(orderRepo, orderItemRepo)
 	pb.RegisterOrderServiceServer(grpcServer, orderSvc)
 
 	log.Printf("Order Mgmt Service is running at PORT %s", c.Port)

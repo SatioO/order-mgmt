@@ -16,7 +16,7 @@ enum PaymentMethod {
 message CreateOrderRequest {
     uint32 customerId = 1;
     uint32 sellerId = 2;
-    Product product = 3;
+    repeated Product products = 3;
     PaymentMethod paymentMethod = 4;
     string deliveryLocation = 5;
 }
@@ -29,7 +29,6 @@ message Product {
 message OrderResponse {
     uint32 customerId = 1;
     uint32 sellerId = 2;
-    Product product = 3;
     string paymentMethod = 4;
     string deliveryLocation = 5;
     string orderId = 6;

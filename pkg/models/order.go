@@ -11,22 +11,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Product struct {
-	ProductID   uint32 `dynamodbav:"productId"`
-	ProductName string `dynamodbav:"productName"`
-}
-
 type Order struct {
-	PK               string  `dynamodbav:"PK"`
-	SK               string  `dynamodbav:"SK"`
-	CustomerID       uint32  `dynamodbav:"customerId"`
-	SellerID         uint32  `dynamodbav:"sellerId"`
-	Product          Product `dynamodbav:"product"`
-	PaymentMethod    string  `dynamodbav:"paymentMethod"`
-	DeliveryLocation string  `dynamodbav:"deliveryLocation"`
-	OrderStatus      string  `dynamodbav:"orderStatus"`
-	CreatedTimestamp string  `dynamodbav:"createdTimestamp"`
-	UpdatedTimestamp string  `dynamodbav:"updatedTimestamp"`
+	PK               string `dynamodbav:"PK"`
+	SK               string `dynamodbav:"SK"`
+	CustomerID       uint32 `dynamodbav:"customerId"`
+	SellerID         uint32 `dynamodbav:"sellerId"`
+	PaymentMethod    string `dynamodbav:"paymentMethod"`
+	DeliveryLocation string `dynamodbav:"deliveryLocation"`
+	OrderStatus      string `dynamodbav:"orderStatus"`
+	CreatedTimestamp string `dynamodbav:"createdTimestamp"`
+	UpdatedTimestamp string `dynamodbav:"updatedTimestamp"`
 }
 
 type OrderRepo struct {
