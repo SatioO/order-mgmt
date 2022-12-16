@@ -10,9 +10,12 @@ require (
 	google.golang.org/protobuf v1.28.1
 )
 
+require github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.13.27 // indirect
+
 require (
-	github.com/aws/aws-sdk-go-v2 v1.17.2 // indirect
+	github.com/aws/aws-sdk-go-v2 v1.17.2
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.4 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.7
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.12.20 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.26 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.20 // indirect
@@ -27,7 +30,7 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
-	github.com/go-playground/validator/v10 v10.11.1 // indirect
+	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
