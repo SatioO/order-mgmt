@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,6 +25,7 @@ func NewOrderService(orderRepo *models.OrderRepo, orderItemRepo *models.OrderIte
 
 func (o orderService) CreateOrder(ctx context.Context, body *pb.CreateOrderRequest) (*pb.OrderResponse, error) {
 	orderId, _ := uuid.NewUUID()
+	executed := make(chan error)
 
 	order := models.Order{
 		PK:               fmt.Sprintf("ORDER#%s", orderId),
@@ -41,24 +41,30 @@ func (o orderService) CreateOrder(ctx context.Context, body *pb.CreateOrderReque
 
 	createdOrder, err := o.orderRepo.CreateOrder(order)
 
-	var wg sync.WaitGroup
-	wg.Add(len(body.Products))
+	go o.CreateOrderItem(orderId, body.Products, executed)
 
-	for _, product := range body.Products {
-		go func(product *pb.Product) {
-			orderItemId, _ := uuid.NewUUID()
-			o.orderItemRepo.CreateOrderItem(models.OrderItem{
-				PK:               fmt.Sprintf("ORDER#%s", orderId),
-				SK:               fmt.Sprintf("ORDERITEM#%s", orderItemId),
-				ProductName:      product.ProductName,
-				CreatedTimestamp: time.Now().String(),
-				UpdatedTimestamp: time.Now().String(),
-			})
-			wg.Done()
-		}(product)
+	for err := range executed {
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	wg.Wait()
-
 	return createdOrder, err
+}
+
+func (o orderService) CreateOrderItem(orderId uuid.UUID, products []*pb.Product, executed chan<- error) {
+	defer close(executed)
+
+	for _, product := range products {
+		orderItemId, _ := uuid.NewUUID()
+		err := o.orderItemRepo.CreateOrderItem(models.OrderItem{
+			PK:               fmt.Sprintf("ORDER#%s", orderId),
+			SK:               fmt.Sprintf("ORDERITEM#%s", orderItemId),
+			ProductName:      product.ProductName,
+			CreatedTimestamp: time.Now().String(),
+			UpdatedTimestamp: time.Now().String(),
+		})
+
+		executed <- err
+	}
 }
