@@ -14,6 +14,7 @@ import (
 type Order struct {
 	PK               string `dynamodbav:"PK"`
 	SK               string `dynamodbav:"SK"`
+	Type             string `dynamodbav:"type"`
 	CustomerID       uint32 `dynamodbav:"customerId"`
 	SellerID         uint32 `dynamodbav:"sellerId"`
 	PaymentMethod    string `dynamodbav:"paymentMethod"`

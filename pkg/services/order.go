@@ -2,11 +2,9 @@ package services
 
 import (
 	"context"
-	"fmt"
 	"sync"
-	"time"
 
-	"github.com/google/uuid"
+	"github.com/satioO/order-mgmt/pkg/mapper"
 	"github.com/satioO/order-mgmt/pkg/models"
 	"github.com/satioO/order-mgmt/pkg/pb"
 )
@@ -25,26 +23,13 @@ func NewOrderService(orderRepo *models.OrderRepo, orderItemRepo *models.OrderIte
 }
 
 func (o orderService) CreateOrder(ctx context.Context, body *pb.CreateOrderRequest) (*pb.OrderResponse, error) {
-	orderId, _ := uuid.NewUUID()
-	executed := make(chan error)
+	orderEntity := mapper.ToCreateOrderEntity(body)
+	createdOrder, err := o.orderRepo.CreateOrder(orderEntity)
 
-	order := models.Order{
-		PK:               fmt.Sprintf("ORDER#%s", orderId),
-		SK:               fmt.Sprintf("ORDER#%s", orderId),
-		CustomerID:       body.CustomerId,
-		SellerID:         body.SellerId,
-		PaymentMethod:    body.PaymentMethod.String(),
-		DeliveryLocation: body.DeliveryLocation,
-		OrderStatus:      "ORDER_CREATED",
-		CreatedTimestamp: time.Now().String(),
-		UpdatedTimestamp: time.Now().String(),
-	}
+	statusChan := make(chan error)
+	go o.CreateOrderItem(orderEntity.PK, body.Products, statusChan)
 
-	createdOrder, err := o.orderRepo.CreateOrder(order)
-
-	go o.CreateOrderItem(orderId, body.Products, executed)
-
-	for err := range executed {
+	for err := range statusChan {
 		if err != nil {
 			return nil, err
 		}
@@ -53,25 +38,17 @@ func (o orderService) CreateOrder(ctx context.Context, body *pb.CreateOrderReque
 	return createdOrder, err
 }
 
-func (o orderService) CreateOrderItem(orderId uuid.UUID, products []*pb.Product, executed chan<- error) {
-	defer close(executed)
+func (o orderService) CreateOrderItem(orderId string, products []*pb.Product, statusChan chan<- error) {
+	defer close(statusChan)
 
 	wg := sync.WaitGroup{}
-
 	wg.Add(len(products))
 
 	for _, product := range products {
 		go func(product *pb.Product) {
-			orderItemId, _ := uuid.NewUUID()
-			err := o.orderItemRepo.CreateOrderItem(models.OrderItem{
-				PK:               fmt.Sprintf("ORDER#%s", orderId),
-				SK:               fmt.Sprintf("ORDERITEM#%s", orderItemId),
-				ProductName:      product.ProductName,
-				CreatedTimestamp: time.Now().String(),
-				UpdatedTimestamp: time.Now().String(),
-			})
+			orderItemEntity := mapper.ToCreateOrderItemEntity(orderId, product)
+			statusChan <- o.orderItemRepo.CreateOrderItem(orderItemEntity)
 
-			executed <- err
 			wg.Done()
 		}(product)
 	}
