@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -10,16 +9,17 @@ import (
 )
 
 func ToCreateOrderEntity(dto *pb.CreateOrderRequest) models.Order {
-	uuid, _ := uuid.NewUUID()
+	orderId, _ := uuid.NewUUID()
 
 	return models.Order{
-		PK:               fmt.Sprintf("ORDER#%s", uuid.String()),
-		SK:               fmt.Sprintf("ORDER#%s", uuid.String()),
+		PK:               "ORDER#" + orderId.String(),
+		SK:               "ORDER#" + orderId.String(),
 		GSI1PK:           "Order",
-		GSI1SK:           fmt.Sprintf("ORDER#%s", uuid.String()),
+		GSI1SK:           "ORDER#" + orderId.String(),
 		Type:             "Order",
 		CustomerID:       dto.CustomerId,
 		SellerID:         dto.SellerId,
+		OrderID:          orderId.String(),
 		PaymentMethod:    dto.PaymentMethod.String(),
 		DeliveryLocation: dto.DeliveryLocation,
 		OrderStatus:      "ORDER_CREATED",

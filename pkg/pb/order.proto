@@ -33,13 +33,13 @@ message Product {
 }
 
 message OrderResponse {
-    uint32 customerId = 1;
-    uint32 sellerId = 2;
+    string orderId = 1;
+    uint32 customerId = 2;
+    uint32 sellerId = 3;
     string paymentMethod = 4;
     string deliveryLocation = 5;
     repeated Product product = 6;
-    string PK = 7;
-    string orderStatus = 8;
-    string createdTimestamp = 9;
-    string updatedTimestamp = 10;
+    string orderStatus = 7;
+    string createdTimestamp = 8;
+    string updatedTimestamp = 9;
 }

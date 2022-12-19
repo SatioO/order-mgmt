@@ -19,6 +19,7 @@ type Order struct {
 	Type             string `dynamodbav:"type"`
 	CustomerID       uint32 `dynamodbav:"customerId"`
 	SellerID         uint32 `dynamodbav:"sellerId"`
+	OrderID          string `dynamodbav:"orderId"`
 	PaymentMethod    string `dynamodbav:"paymentMethod"`
 	DeliveryLocation string `dynamodbav:"deliveryLocation"`
 	OrderStatus      string `dynamodbav:"orderStatus"`
@@ -73,8 +74,8 @@ func (o OrderRepo) CreateOrder(ctx context.Context, order Order) (*pb.OrderRespo
 	})
 
 	if err != nil {
-		return nil, errors.New("error while creating data")
+		return nil, err
 	}
 
-	return &pb.OrderResponse{PK: order.PK}, nil
+	return &pb.OrderResponse{OrderId: order.OrderID}, nil
 }
