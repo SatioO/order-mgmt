@@ -30,8 +30,8 @@ func main() {
 	grpcServer := grpc.NewServer()
 
 	// order service registration
-	orderRepo := models.NewOrderRepo(dbCon)
-	orderItemRepo := models.NewOrderItemRepo(dbCon)
+	orderRepo := models.NewOrderRepo(dbCon, c.DynamoDBTable)
+	orderItemRepo := models.NewOrderItemRepo(dbCon, c.DynamoDBTable)
 	orderSvc := services.NewOrderService(orderRepo, orderItemRepo)
 	pb.RegisterOrderServiceServer(grpcServer, orderSvc)
 

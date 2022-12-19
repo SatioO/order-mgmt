@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"sync"
 
 	"github.com/satioO/order-mgmt/pkg/mapper"
 	"github.com/satioO/order-mgmt/pkg/models"
@@ -26,32 +25,15 @@ func (o orderService) CreateOrder(ctx context.Context, body *pb.CreateOrderReque
 	orderEntity := mapper.ToCreateOrderEntity(body)
 	createdOrder, err := o.orderRepo.CreateOrder(orderEntity)
 
-	statusChan := make(chan error)
-	go o.CreateOrderItem(orderEntity.PK, body.Products, statusChan)
+	var orderItems []models.OrderItem
+	for _, items := range body.Products {
+		orderItemEntity := mapper.ToCreateOrderItemEntity(orderEntity.PK, items)
+		orderItems = append(orderItems, orderItemEntity)
+	}
 
-	for err := range statusChan {
-		if err != nil {
-			return nil, err
-		}
+	if err := o.orderItemRepo.BatchWriteOrderItems(orderItems); err != nil {
+		return nil, err
 	}
 
 	return createdOrder, err
-}
-
-func (o orderService) CreateOrderItem(orderId string, products []*pb.Product, statusChan chan<- error) {
-	defer close(statusChan)
-
-	wg := sync.WaitGroup{}
-	wg.Add(len(products))
-
-	for _, product := range products {
-		go func(product *pb.Product) {
-			orderItemEntity := mapper.ToCreateOrderItemEntity(orderId, product)
-			statusChan <- o.orderItemRepo.CreateOrderItem(orderItemEntity)
-
-			wg.Done()
-		}(product)
-	}
-
-	wg.Wait()
 }

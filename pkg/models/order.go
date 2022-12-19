@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/satioO/order-mgmt/pkg/pb"
-	"github.com/spf13/viper"
 )
 
 type Order struct {
@@ -25,11 +24,12 @@ type Order struct {
 }
 
 type OrderRepo struct {
-	db *dynamodb.Client
+	db        *dynamodb.Client
+	tableName string
 }
 
-func NewOrderRepo(db *dynamodb.Client) *OrderRepo {
-	return &OrderRepo{db}
+func NewOrderRepo(db *dynamodb.Client, tableName string) *OrderRepo {
+	return &OrderRepo{db, tableName}
 }
 
 func (o OrderRepo) CreateOrder(order Order) (*pb.OrderResponse, error) {
@@ -40,7 +40,7 @@ func (o OrderRepo) CreateOrder(order Order) (*pb.OrderResponse, error) {
 	}
 
 	_, err = o.db.PutItem(context.TODO(), &dynamodb.PutItemInput{
-		TableName: aws.String(viper.GetString("DB_TABLE")),
+		TableName: aws.String(o.tableName),
 		Item:      av,
 	})
 

@@ -6,7 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/spf13/viper"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 type OrderItem struct {
@@ -19,11 +19,12 @@ type OrderItem struct {
 }
 
 type OrderItemRepo struct {
-	db *dynamodb.Client
+	db        *dynamodb.Client
+	tableName string
 }
 
-func NewOrderItemRepo(db *dynamodb.Client) *OrderItemRepo {
-	return &OrderItemRepo{db}
+func NewOrderItemRepo(db *dynamodb.Client, tableName string) *OrderItemRepo {
+	return &OrderItemRepo{db, tableName}
 }
 
 func (o OrderItemRepo) CreateOrderItem(orderItem OrderItem) error {
@@ -34,8 +35,27 @@ func (o OrderItemRepo) CreateOrderItem(orderItem OrderItem) error {
 	}
 
 	_, err = o.db.PutItem(context.TODO(), &dynamodb.PutItemInput{
-		TableName: aws.String(viper.GetString("DB_TABLE")),
+		TableName: aws.String(o.tableName),
 		Item:      av,
+	})
+
+	return err
+}
+
+func (o OrderItemRepo) BatchWriteOrderItems(orderItems []OrderItem) error {
+	var writeItems []types.WriteRequest
+
+	for _, orderItem := range orderItems {
+		av, err := attributevalue.MarshalMap(orderItem)
+		if err != nil {
+			return err
+		}
+
+		writeItems = append(writeItems, types.WriteRequest{PutRequest: &types.PutRequest{Item: av}})
+	}
+
+	_, err := o.db.BatchWriteItem(context.TODO(), &dynamodb.BatchWriteItemInput{
+		RequestItems: map[string][]types.WriteRequest{o.tableName: writeItems},
 	})
 
 	return err
