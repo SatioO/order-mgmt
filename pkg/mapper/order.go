@@ -15,6 +15,8 @@ func ToCreateOrderEntity(dto *pb.CreateOrderRequest) models.Order {
 	return models.Order{
 		PK:               fmt.Sprintf("ORDER#%s", uuid.String()),
 		SK:               fmt.Sprintf("ORDER#%s", uuid.String()),
+		GSI1PK:           "Order",
+		GSI1SK:           fmt.Sprintf("ORDER#%s", uuid.String()),
 		Type:             "Order",
 		CustomerID:       dto.CustomerId,
 		SellerID:         dto.SellerId,
