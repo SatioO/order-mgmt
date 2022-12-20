@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,7 +13,7 @@ func ToCreateOrderItemEntity(orderId string, orderItem *pb.Product) models.Order
 
 	return models.OrderItem{
 		PK:               orderId,
-		SK:               fmt.Sprintf("ORDERITEM#%s", orderItemId),
+		SK:               "ORDERITEM#" + orderItemId.String(),
 		Type:             "OrderItem",
 		ProductName:      orderItem.ProductName,
 		CreatedTimestamp: time.Now().String(),

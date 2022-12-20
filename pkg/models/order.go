@@ -45,7 +45,7 @@ func (o OrderRepo) GetOrders(ctx context.Context) (*pb.GetOrdersResponse, error)
 			"#key": "GSI1-PK",
 		},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":key": &types.AttributeValueMemberS{Value: "Order"},
+			":key": &types.AttributeValueMemberS{Value: "ORDER"},
 		},
 	})
 
