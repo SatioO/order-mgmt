@@ -21,8 +21,8 @@ func NewOrderService(orderRepo *models.OrderRepo, orderItemRepo *models.OrderIte
 	}
 }
 
-func (o orderService) GetOrders(ctx context.Context, body *pb.GetOrdersRequest) (*pb.GetOrdersResponse, error) {
-	return o.orderRepo.GetOrders(ctx)
+func (o orderService) GetOrders(ctx context.Context, req *pb.GetOrdersRequest) (*pb.GetOrdersResponse, error) {
+	return o.orderRepo.GetOrders(ctx, req)
 }
 
 func (o orderService) CreateOrder(ctx context.Context, body *pb.CreateOrderRequest) (*pb.OrderResponse, error) {
@@ -31,7 +31,7 @@ func (o orderService) CreateOrder(ctx context.Context, body *pb.CreateOrderReque
 
 	var orderItems []models.OrderItem
 	for _, product := range body.Products {
-		orderItemEntity := mapper.ToCreateOrderItemEntity(orderEntity.PK, product)
+		orderItemEntity := mapper.ToCreateOrderItemEntity(orderEntity.SK, product)
 		orderItems = append(orderItems, orderItemEntity)
 	}
 

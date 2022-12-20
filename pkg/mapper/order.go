@@ -9,17 +9,17 @@ import (
 )
 
 func ToCreateOrderEntity(dto *pb.CreateOrderRequest) models.Order {
-	orderId := ksuid.New()
+	orderId := ksuid.New().String()
 
 	return models.Order{
-		PK:               "ORDER#" + orderId.String(),
-		SK:               "METADATA#" + orderId.String(),
-		GSI1PK:           "ORDER",
-		GSI1SK:           "ORDER#" + orderId.String(),
+		PK:               "CUSTOMER#" + dto.CustomerId,
+		SK:               "ORDER#" + orderId,
+		GSI1PK:           "ORDER#" + orderId,
+		GSI1SK:           "ORDER#" + orderId,
 		Type:             "Order",
 		CustomerID:       dto.CustomerId,
 		SellerID:         dto.SellerId,
-		OrderID:          orderId.String(),
+		OrderID:          orderId,
 		PaymentMethod:    dto.PaymentMethod.String(),
 		DeliveryLocation: dto.DeliveryLocation,
 		OrderStatus:      "ORDER_CREATED",

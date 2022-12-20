@@ -9,13 +9,13 @@ import (
 )
 
 func ToCreateOrderItemEntity(orderId string, orderItem *pb.Product) models.OrderItem {
-	orderItemId := ksuid.New()
+	orderItemId := ksuid.New().String()
 
 	return models.OrderItem{
-		PK:               orderId + "#ITEM#" + orderItemId.String(),
-		SK:               orderId + "#ITEM#" + orderItemId.String(),
+		PK:               orderId + "#ITEM#" + orderItemId,
+		SK:               orderId + "#ITEM#" + orderItemId,
 		GSI1PK:           orderId,
-		GSI1SK:           "ITEM#" + orderItemId.String(),
+		GSI1SK:           "ITEM#" + orderItemId,
 		Type:             "OrderItem",
 		ProductName:      orderItem.ProductName,
 		CreatedTimestamp: time.Now().String(),

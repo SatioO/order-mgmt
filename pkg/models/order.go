@@ -17,8 +17,8 @@ type Order struct {
 	GSI1PK           string `dynamodbav:"GSI1-PK"`
 	GSI1SK           string `dynamodbav:"GSI1-SK"`
 	Type             string `dynamodbav:"type"`
-	CustomerID       uint32 `dynamodbav:"customerId"`
-	SellerID         uint32 `dynamodbav:"sellerId"`
+	CustomerID       string `dynamodbav:"customerId"`
+	SellerID         string `dynamodbav:"sellerId"`
 	OrderID          string `dynamodbav:"orderId"`
 	PaymentMethod    string `dynamodbav:"paymentMethod"`
 	DeliveryLocation string `dynamodbav:"deliveryLocation"`
@@ -36,16 +36,15 @@ func NewOrderRepo(db *dynamodb.Client, tableName string) *OrderRepo {
 	return &OrderRepo{db, tableName}
 }
 
-func (o OrderRepo) GetOrders(ctx context.Context) (*pb.GetOrdersResponse, error) {
+func (o OrderRepo) GetOrders(ctx context.Context, req *pb.GetOrdersRequest) (*pb.GetOrdersResponse, error) {
 	result, err := o.db.Query(ctx, &dynamodb.QueryInput{
 		TableName:              aws.String(o.tableName),
-		IndexName:              aws.String("GSI1"),
-		KeyConditionExpression: aws.String("#key = :key"),
+		KeyConditionExpression: aws.String("#PK = :PK"),
 		ExpressionAttributeNames: map[string]string{
-			"#key": "GSI1-PK",
+			"#PK": "PK",
 		},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":key": &types.AttributeValueMemberS{Value: "ORDER"},
+			":PK": &types.AttributeValueMemberS{Value: "CUSTOMER#" + req.CustomerId},
 		},
 	})
 
@@ -54,7 +53,6 @@ func (o OrderRepo) GetOrders(ctx context.Context) (*pb.GetOrdersResponse, error)
 	}
 
 	orders := pb.GetOrdersResponse{}
-
 	if err := attributevalue.UnmarshalListOfMaps(result.Items, &orders.Orders); err != nil {
 		return nil, err
 	}

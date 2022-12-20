@@ -14,14 +14,16 @@ enum PaymentMethod {
     CREDIT_CARD = 1;
 }
 
-message GetOrdersRequest {}
+message GetOrdersRequest {
+    string customerId = 1;
+}
 message GetOrdersResponse {
     repeated OrderResponse orders = 1;
 }
 
 message CreateOrderRequest {
-    uint32 customerId = 1;
-    uint32 sellerId = 2;
+    string customerId = 1;
+    string sellerId = 2;
     repeated Product products = 3;
     PaymentMethod paymentMethod = 4;
     string deliveryLocation = 5;
@@ -34,8 +36,8 @@ message Product {
 
 message OrderResponse {
     string orderId = 1;
-    uint32 customerId = 2;
-    uint32 sellerId = 3;
+    string customerId = 2;
+    string sellerId = 3;
     string paymentMethod = 4;
     string deliveryLocation = 5;
     repeated Product product = 6;
