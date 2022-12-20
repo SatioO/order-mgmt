@@ -23,7 +23,7 @@ func ToCreateOrderEntity(dto *pb.CreateOrderRequest) models.Order {
 		PaymentMethod:    dto.PaymentMethod.String(),
 		DeliveryLocation: dto.DeliveryLocation,
 		OrderStatus:      "ORDER_CREATED",
-		CreatedTimestamp: time.Now().String(),
-		UpdatedTimestamp: time.Now().String(),
+		CreatedTimestamp: time.Now().UTC().String(),
+		UpdatedTimestamp: time.Now().UTC().String(),
 	}
 }

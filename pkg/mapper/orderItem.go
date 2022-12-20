@@ -18,7 +18,7 @@ func ToCreateOrderItemEntity(orderId string, orderItem *pb.Product) models.Order
 		GSI1SK:           "ITEM#" + orderItemId,
 		Type:             "OrderItem",
 		ProductName:      orderItem.ProductName,
-		CreatedTimestamp: time.Now().String(),
-		UpdatedTimestamp: time.Now().String(),
+		CreatedTimestamp: time.Now().UTC().String(),
+		UpdatedTimestamp: time.Now().UTC().String(),
 	}
 }
