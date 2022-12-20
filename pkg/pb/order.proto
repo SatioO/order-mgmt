@@ -30,7 +30,7 @@ message CreateOrderRequest {
 }
 
 message Product {
-    uint32 productId = 1;
+    string productId = 1;
     string productName = 2;
 }
 
