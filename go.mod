@@ -10,7 +10,10 @@ require (
 	google.golang.org/protobuf v1.28.1
 )
 
-require github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.13.27 // indirect
+require (
+	github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.13.27 // indirect
+	github.com/segmentio/ksuid v1.0.4 // indirect
+)
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.17.2

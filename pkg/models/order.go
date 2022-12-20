@@ -54,6 +54,7 @@ func (o OrderRepo) GetOrders(ctx context.Context) (*pb.GetOrdersResponse, error)
 	}
 
 	orders := pb.GetOrdersResponse{}
+
 	if err := attributevalue.UnmarshalListOfMaps(result.Items, &orders.Orders); err != nil {
 		return nil, err
 	}

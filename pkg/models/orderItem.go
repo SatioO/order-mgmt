@@ -12,6 +12,8 @@ import (
 type OrderItem struct {
 	PK               string `dynamodbav:"PK"`
 	SK               string `dynamodbav:"SK"`
+	GSI1PK           string `dynamodbav:"GSI1-PK"`
+	GSI1SK           string `dynamodbav:"GSI1-SK"`
 	Type             string `dynamodbav:"type"`
 	ProductName      string `dynamodbav:"productName"`
 	CreatedTimestamp string `dynamodbav:"createdTimestamp"`
