@@ -4,11 +4,11 @@ import (
 	"log"
 	"net"
 
+	"github.com/satioO/order-mgmt/internal/models"
+	"github.com/satioO/order-mgmt/internal/services"
 	"github.com/satioO/order-mgmt/pkg/config"
 	"github.com/satioO/order-mgmt/pkg/db"
-	"github.com/satioO/order-mgmt/pkg/models"
 	"github.com/satioO/order-mgmt/pkg/pb"
-	"github.com/satioO/order-mgmt/pkg/services"
 	"google.golang.org/grpc"
 )
 
@@ -22,7 +22,6 @@ func main() {
 	dbCon := db.Init()
 
 	lis, err := net.Listen("tcp", c.Port)
-
 	if err != nil {
 		log.Fatalln("Failed to listen", err)
 	}

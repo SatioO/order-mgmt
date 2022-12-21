@@ -3,7 +3,7 @@ package mapper
 import (
 	"time"
 
-	"github.com/satioO/order-mgmt/pkg/models"
+	"github.com/satioO/order-mgmt/internal/models"
 	"github.com/satioO/order-mgmt/pkg/pb"
 	"github.com/segmentio/ksuid"
 )

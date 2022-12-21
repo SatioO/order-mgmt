@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 
-	"github.com/satioO/order-mgmt/pkg/mapper"
-	"github.com/satioO/order-mgmt/pkg/models"
+	"github.com/satioO/order-mgmt/internal/mapper"
+	"github.com/satioO/order-mgmt/internal/models"
 	"github.com/satioO/order-mgmt/pkg/pb"
 )
 
