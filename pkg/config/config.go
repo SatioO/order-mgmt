@@ -13,6 +13,8 @@ type Config struct {
 	DynamoDBTable string `mapstructure:"DB_TABLE" validate:"required"`
 
 	AwsRegion string `mapstructure:"AWS_REGION" validate:"required"`
+
+	CreateOrderTopic string `mapstructure:"QUEUE_CREATE_ORDER_TOPIC" validate:"required"`
 }
 
 func LoadConfig() (config Config, err error) {
@@ -29,6 +31,7 @@ func LoadConfig() (config Config, err error) {
 	}
 
 	err = viper.Unmarshal(&config)
+
 	validate := validator.New()
 	if err := validate.Struct(&config); err != nil {
 		log.Fatalf("Missing required attributes %v\n", err)
