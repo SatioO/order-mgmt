@@ -8,12 +8,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/satioO/order-mgmt/internal/mapper"
 	"github.com/satioO/order-mgmt/internal/models"
-	"github.com/satioO/order-mgmt/pkg/pb"
+	"github.com/satioO/order-mgmt/proto"
 	"github.com/spf13/viper"
 )
 
 type orderService struct {
-	pb.UnimplementedOrderServiceServer
+	proto.UnimplementedOrderServiceServer
 	queue         *sqs.Client
 	orderRepo     *models.OrderRepo
 	orderItemRepo *models.OrderItemRepo
@@ -27,11 +27,11 @@ func NewOrderService(queue *sqs.Client, orderRepo *models.OrderRepo, orderItemRe
 	}
 }
 
-func (o orderService) GetOrders(ctx context.Context, req *pb.GetOrdersRequest) (*pb.GetOrdersResponse, error) {
+func (o orderService) GetOrders(ctx context.Context, req *proto.GetOrdersRequest) (*proto.GetOrdersResponse, error) {
 	return o.orderRepo.GetOrders(ctx, req)
 }
 
-func (o orderService) CreateOrder(ctx context.Context, body *pb.CreateOrderRequest) (*pb.OrderResponse, error) {
+func (o orderService) CreateOrder(ctx context.Context, body *proto.CreateOrderRequest) (*proto.OrderResponse, error) {
 	orderEntity := mapper.ToCreateOrderEntity(body)
 	createdOrder, err := o.orderRepo.CreateOrder(ctx, orderEntity)
 

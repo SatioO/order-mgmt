@@ -4,12 +4,12 @@ import (
 	"log"
 	"net"
 
+	"github.com/satioO/order-mgmt/config"
 	"github.com/satioO/order-mgmt/internal/models"
 	"github.com/satioO/order-mgmt/internal/services"
-	"github.com/satioO/order-mgmt/pkg/config"
 	"github.com/satioO/order-mgmt/pkg/db"
-	"github.com/satioO/order-mgmt/pkg/pb"
 	"github.com/satioO/order-mgmt/pkg/queue"
+	"github.com/satioO/order-mgmt/proto"
 	"google.golang.org/grpc"
 )
 
@@ -34,7 +34,7 @@ func main() {
 	orderRepo := models.NewOrderRepo(dbCon, c.DynamoDBTable)
 	orderItemRepo := models.NewOrderItemRepo(dbCon, c.DynamoDBTable)
 	orderSvc := services.NewOrderService(queueCon, orderRepo, orderItemRepo)
-	pb.RegisterOrderServiceServer(grpcServer, orderSvc)
+	proto.RegisterOrderServiceServer(grpcServer, orderSvc)
 
 	log.Printf("Order Mgmt Service is running at PORT %s", c.Port)
 

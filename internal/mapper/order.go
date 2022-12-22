@@ -4,11 +4,11 @@ import (
 	"time"
 
 	"github.com/satioO/order-mgmt/internal/models"
-	"github.com/satioO/order-mgmt/pkg/pb"
+	"github.com/satioO/order-mgmt/proto"
 	"github.com/segmentio/ksuid"
 )
 
-func ToCreateOrderEntity(dto *pb.CreateOrderRequest) models.Order {
+func ToCreateOrderEntity(dto *proto.CreateOrderRequest) models.Order {
 	orderId := ksuid.New().String()
 
 	return models.Order{

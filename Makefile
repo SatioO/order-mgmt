@@ -1,5 +1,5 @@
 server:
 	go run cmd/main.go
 
-proto:
-	protoc --go_out=. --go-grpc_out=. pkg/pb/*.proto
+contract:
+	protoc --go_out=. --go-grpc_out=. proto/*.proto

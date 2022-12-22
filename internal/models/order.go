@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/satioO/order-mgmt/pkg/pb"
+	"github.com/satioO/order-mgmt/proto"
 )
 
 type Order struct {
@@ -36,7 +36,7 @@ func NewOrderRepo(db *dynamodb.Client, tableName string) *OrderRepo {
 	return &OrderRepo{db, tableName}
 }
 
-func (o OrderRepo) GetOrders(ctx context.Context, req *pb.GetOrdersRequest) (*pb.GetOrdersResponse, error) {
+func (o OrderRepo) GetOrders(ctx context.Context, req *proto.GetOrdersRequest) (*proto.GetOrdersResponse, error) {
 	result, err := o.db.Query(ctx, &dynamodb.QueryInput{
 		TableName:              aws.String(o.tableName),
 		KeyConditionExpression: aws.String("#PK = :PK"),
@@ -52,7 +52,7 @@ func (o OrderRepo) GetOrders(ctx context.Context, req *pb.GetOrdersRequest) (*pb
 		return nil, err
 	}
 
-	orders := pb.GetOrdersResponse{}
+	orders := proto.GetOrdersResponse{}
 	if err := attributevalue.UnmarshalListOfMaps(result.Items, &orders.Orders); err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (o OrderRepo) GetOrders(ctx context.Context, req *pb.GetOrdersRequest) (*pb
 	return &orders, nil
 }
 
-func (o OrderRepo) CreateOrder(ctx context.Context, order Order) (*pb.OrderResponse, error) {
+func (o OrderRepo) CreateOrder(ctx context.Context, order Order) (*proto.OrderResponse, error) {
 	av, err := attributevalue.MarshalMap(order)
 
 	if err != nil {
@@ -76,5 +76,5 @@ func (o OrderRepo) CreateOrder(ctx context.Context, order Order) (*pb.OrderRespo
 		return nil, err
 	}
 
-	return &pb.OrderResponse{OrderId: order.OrderID}, nil
+	return &proto.OrderResponse{OrderId: order.OrderID}, nil
 }
