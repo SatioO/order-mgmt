@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"log"
 
 	"github.com/satioO/order-mgmt/config"
 )
@@ -20,6 +19,6 @@ func NewCreateOrderHandler(cfg *config.Config) *createOrderHandler {
 }
 
 func (c *createOrderHandler) Handle(ctx context.Context, command *CreateOrderCommand) error {
-	log.Println(command)
+
 	return nil
 }

@@ -1,41 +1,64 @@
 package config
 
 import (
-	"log"
+	"fmt"
+	"os"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/pkg/errors"
+	"github.com/satioO/order-mgmt/pkg/constants"
 	"github.com/spf13/viper"
 )
 
+var configPath string
+
 type Config struct {
-	Port string `mapstructure:"SERVICE_PORT" validate:"required"`
-
-	DynamoDBTable string `mapstructure:"DB_TABLE" validate:"required"`
-
-	AwsRegion string `mapstructure:"AWS_REGION" validate:"required"`
-
-	CreateOrderTopic string `mapstructure:"QUEUE_CREATE_ORDER_TOPIC" validate:"required"`
+	ServerName string `mapstructure:"serviceName"`
+	Logger     Logger `mapstructure:"logger"`
+	GRPC       GRPC   `mapstructure:"grpc"`
+	AWS        AWS    `mapstructure:"aws"`
 }
 
-func LoadConfig() (config Config, err error) {
-	viper.AddConfigPath("./config/envs")
-	viper.SetConfigName("dev")
-	viper.SetConfigType("env")
+type AWS struct {
+	Region string `mapstructure:"region"`
+}
 
-	viper.AutomaticEnv()
+type GRPC struct {
+	Port        string `mapstructure:"port"`
+	Development bool   `mapstructure:"development"`
+}
 
-	err = viper.ReadInConfig()
+type Logger struct {
+	LogLevel string `mapstructure:"level"`
+	DevMode  bool   `mapstructure:"devMode"`
+	Encoder  string `mapstructure:"encoder"`
+}
 
-	if err != nil {
-		return
+func LoadConfig() (config *Config, err error) {
+	if configPath == "" {
+		configPathFromEnv := os.Getenv(constants.ConfigPath)
+		if configPathFromEnv != "" {
+			configPath = configPathFromEnv
+		} else {
+			getwd, err := os.Getwd()
+			if err != nil {
+				return nil, errors.Wrap(err, "os.Getwd")
+			}
+			configPath = fmt.Sprintf("%s/config/config.yaml", getwd)
+		}
 	}
 
-	err = viper.Unmarshal(&config)
+	cfg := &Config{}
 
-	validate := validator.New()
-	if err := validate.Struct(&config); err != nil {
-		log.Fatalf("Missing required attributes %v\n", err)
+	viper.SetConfigType(constants.Yaml)
+	viper.SetConfigFile(configPath)
+
+	if err := viper.ReadInConfig(); err != nil {
+		return nil, errors.Wrap(err, "viper.ReadInConfig")
 	}
 
-	return
+	if err := viper.Unmarshal(cfg); err != nil {
+		return nil, errors.Wrap(err, "viper.Unmarshel")
+	}
+
+	return cfg, nil
 }

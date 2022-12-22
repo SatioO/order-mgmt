@@ -1,0 +1,14 @@
+serviceName: order_mgmt
+grpc:
+  port: :50052
+  development: true
+logger:
+  level: debug
+  devMode: false
+  encoder: console
+datasource:
+  table: OrderMgmt
+aws:
+  region: ap-south-1
+topics:
+    create-order: https://sqs.ap-south-1.amazonaws.com/335695074212/ORDER_CREATED
