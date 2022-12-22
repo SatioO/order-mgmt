@@ -5,10 +5,8 @@ import (
 	"net"
 
 	"github.com/satioO/order-mgmt/config"
-	"github.com/satioO/order-mgmt/internal/models"
-	"github.com/satioO/order-mgmt/internal/services"
-	"github.com/satioO/order-mgmt/pkg/db"
-	"github.com/satioO/order-mgmt/pkg/queue"
+	delivery "github.com/satioO/order-mgmt/internal/order/delivery/grpc"
+	"github.com/satioO/order-mgmt/internal/order/service"
 	"github.com/satioO/order-mgmt/proto"
 	"google.golang.org/grpc"
 )
@@ -20,8 +18,8 @@ func main() {
 		log.Fatalln("Failed to load config", err)
 	}
 
-	dbCon := db.Init()
-	queueCon := queue.Init()
+	// dbCon := db.Init()
+	// queueCon := queue.Init()
 
 	lis, err := net.Listen("tcp", c.Port)
 	if err != nil {
@@ -31,10 +29,13 @@ func main() {
 	grpcServer := grpc.NewServer()
 
 	// order service registration
-	orderRepo := models.NewOrderRepo(dbCon, c.DynamoDBTable)
-	orderItemRepo := models.NewOrderItemRepo(dbCon, c.DynamoDBTable)
-	orderSvc := services.NewOrderService(queueCon, orderRepo, orderItemRepo)
-	proto.RegisterOrderServiceServer(grpcServer, orderSvc)
+	// orderRepo := models.NewOrderRepo(dbCon, c.DynamoDBTable)
+	// orderItemRepo := models.NewOrderItemRepo(dbCon, c.DynamoDBTable)
+	// orderSvc := services.NewOrderService(queueCon, orderRepo, orderItemRepo)
+	// proto.RegisterOrderServiceServer(grpcServer, orderSvc)
+	orderSvc := service.NewOrderService(&c)
+	orderGrpcSvc := delivery.NewOrderGRPCService(orderSvc)
+	proto.RegisterOrderServiceServer(grpcServer, orderGrpcSvc)
 
 	log.Printf("Order Mgmt Service is running at PORT %s", c.Port)
 
