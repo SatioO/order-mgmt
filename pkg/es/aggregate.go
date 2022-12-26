@@ -3,7 +3,7 @@ package es
 import "fmt"
 
 const (
-	aggregateStartVersion                = -1 // used for EventStoreDB
+	aggregateStartVersion                = -1
 	aggregateAppliedEventsInitialCap     = 10
 	aggregateUncommittedEventsInitialCap = 10
 )
@@ -68,7 +68,7 @@ func NewAggregateBase(when when) *AggregateBase {
 	return &AggregateBase{
 		Version:           aggregateStartVersion,
 		AppliedEvents:     make([]Event, 0, aggregateAppliedEventsInitialCap),
-		UncommittedEvents: make([]Event, aggregateUncommittedEventsInitialCap),
+		UncommittedEvents: make([]Event, 0, aggregateUncommittedEventsInitialCap),
 		when:              when,
 		withAppliedEvents: false,
 	}
@@ -120,6 +120,29 @@ func (a *AggregateBase) GetUncommittedEvents() []Event {
 	return a.UncommittedEvents
 }
 
+// RaiseEvent push event to aggregate applied events using When method, used for load directly from eventstore
+func (a *AggregateBase) RaiseEvent(event Event) error {
+	if event.GetAggregateID() != a.GetID() {
+		return ErrInvalidAggregateID
+	}
+	if a.GetVersion() >= event.GetVersion() {
+		return ErrInvalidEventVersion
+	}
+
+	event.SetAggregateType(a.GetType())
+
+	if err := a.when(event); err != nil {
+		return err
+	}
+
+	if a.withAppliedEvents {
+		a.AppliedEvents = append(a.AppliedEvents, event)
+	}
+
+	a.Version = event.GetVersion()
+	return nil
+}
+
 // Load add existing events from event store to aggregate using When interface method
 func (a *AggregateBase) Load(events []Event) error {
 
@@ -157,6 +180,14 @@ func (a *AggregateBase) Apply(event Event) error {
 	event.SetVersion(a.GetVersion())
 	a.UncommittedEvents = append(a.UncommittedEvents, event)
 	return nil
+}
+
+// ToSnapshot prepare AggregateBase for saving Snapshot.
+func (a *AggregateBase) ToSnapshot() {
+	if a.withAppliedEvents {
+		a.AppliedEvents = append(a.AppliedEvents, a.UncommittedEvents...)
+	}
+	a.ClearUncommittedEvents()
 }
 
 func (a *AggregateBase) String() string {

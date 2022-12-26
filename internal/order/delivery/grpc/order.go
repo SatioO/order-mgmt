@@ -33,5 +33,5 @@ func (o *orderGRPCService) CreateOrder(ctx context.Context, req *proto.CreateOrd
 		return nil, err
 	}
 
-	return nil, nil
+	return &proto.OrderResponse{OrderId: aggregateID}, nil
 }

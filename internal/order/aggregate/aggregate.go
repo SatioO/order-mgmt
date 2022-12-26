@@ -1,6 +1,8 @@
 package aggregate
 
 import (
+	"github.com/pkg/errors"
+	v1 "github.com/satioO/order-mgmt/internal/order/events/v1"
 	"github.com/satioO/order-mgmt/internal/order/models"
 	"github.com/satioO/order-mgmt/pkg/es"
 )
@@ -34,5 +36,21 @@ func NewOrderAggregate() *OrderAggregate {
 }
 
 func (a *OrderAggregate) When(evt es.Event) error {
+	switch evt.GetEventType() {
+	case v1.OrderCreated:
+		return a.onOrderCreated(evt)
+	default:
+		return es.ErrInvalidEventType
+	}
+}
+
+func (a *OrderAggregate) onOrderCreated(evt es.Event) error {
+	var eventData v1.OrderCreatedEvent
+	if err := evt.GetJsonData(&eventData); err != nil {
+		return errors.Wrap(err, "GetJsonData")
+	}
+
+	a.Order.DeliveryLocation = eventData.DeliveryLocation
+	a.Order.PaymentMethod = eventData.PaymentMethod
 	return nil
 }

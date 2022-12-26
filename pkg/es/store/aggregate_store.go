@@ -22,6 +22,9 @@ func (a *aggregateStore) Load(ctx context.Context, aggregate es.Aggregate) error
 }
 
 func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error {
+	for _, event := range aggregate.GetUncommittedEvents() {
+		a.log.Info(event.Data)
+	}
 	return nil
 }
 
