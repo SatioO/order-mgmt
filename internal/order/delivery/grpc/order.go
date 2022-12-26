@@ -29,8 +29,6 @@ func (o *orderGRPCService) CreateOrder(ctx context.Context, req *proto.CreateOrd
 	aggregateID := ksuid.New().String()
 	command := v1.NewCreateOrderCommand(aggregateID, req.CustomerId, req.PaymentMethod.String(), req.DeliveryLocation, []*models.OrderItem{})
 
-	o.log.Infof("creating order: %s", aggregateID)
-
 	if err := o.os.Commands.CreateOrder.Handle(ctx, command); err != nil {
 		return nil, err
 	}

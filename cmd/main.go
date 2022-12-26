@@ -7,6 +7,8 @@ import (
 	"github.com/satioO/order-mgmt/config"
 	delivery "github.com/satioO/order-mgmt/internal/order/delivery/grpc"
 	"github.com/satioO/order-mgmt/internal/order/service"
+	"github.com/satioO/order-mgmt/pkg/db"
+	"github.com/satioO/order-mgmt/pkg/es/store"
 	"github.com/satioO/order-mgmt/pkg/logger"
 	"github.com/satioO/order-mgmt/proto"
 	"google.golang.org/grpc"
@@ -23,7 +25,7 @@ func main() {
 	appLogger.InitLogger()
 	appLogger.WithName(c.ServerName)
 
-	// dbCon := db.Init()
+	dbCon := db.Init()
 	// queueCon := queue.Init()
 
 	lis, err := net.Listen("tcp", c.GRPC.Port)
@@ -34,7 +36,8 @@ func main() {
 	grpcServer := grpc.NewServer()
 
 	// order service registration
-	orderSvc := service.NewOrderService(c)
+	aggregateStore := store.NewAggregateStore(appLogger, dbCon)
+	orderSvc := service.NewOrderService(appLogger, c, aggregateStore)
 	orderGrpcSvc := delivery.NewOrderGRPCService(appLogger, orderSvc)
 	proto.RegisterOrderServiceServer(grpcServer, orderGrpcSvc)
 
