@@ -18,7 +18,7 @@ type AggregateRoot interface {
 	GetUncommittedEvents() []Event
 	GetID() string
 	SetID(id string) *AggregateBase
-	GetVersion() int64
+	GetVersion() int32
 	ClearUncommittedEvents()
 	ToSnapshot()
 	SetType(aggregateType AggregateType)
@@ -118,4 +118,53 @@ func (a *AggregateBase) SetAppliedEvents(events []Event) {
 // GetUncommittedEvents get AggregateBase uncommitted Event's
 func (a *AggregateBase) GetUncommittedEvents() []Event {
 	return a.UncommittedEvents
+}
+
+// Load add existing events from event store to aggregate using When interface method
+func (a *AggregateBase) Load(events []Event) error {
+
+	for _, evt := range events {
+		if evt.GetAggregateID() != a.GetID() {
+			return ErrInvalidAggregate
+		}
+
+		if err := a.when(evt); err != nil {
+			return err
+		}
+
+		if a.withAppliedEvents {
+			a.AppliedEvents = append(a.AppliedEvents, evt)
+		}
+		a.Version++
+	}
+
+	return nil
+}
+
+// Apply push event to aggregate uncommitted events using When method
+func (a *AggregateBase) Apply(event Event) error {
+	if event.GetAggregateID() != a.GetID() {
+		return ErrInvalidAggregateID
+	}
+
+	event.SetAggregateType(a.GetType())
+
+	if err := a.when(event); err != nil {
+		return err
+	}
+
+	a.Version++
+	event.SetVersion(a.GetVersion())
+	a.UncommittedEvents = append(a.UncommittedEvents, event)
+	return nil
+}
+
+func (a *AggregateBase) String() string {
+	return fmt.Sprintf("ID: {%s}, Version: {%v}, Type: {%v}, AppliedEvents: {%v}, UncommittedEvents: {%v}",
+		a.GetID(),
+		a.GetVersion(),
+		a.GetType(),
+		len(a.GetAppliedEvents()),
+		len(a.GetUncommittedEvents()),
+	)
 }

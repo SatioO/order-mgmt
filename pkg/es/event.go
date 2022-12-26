@@ -21,7 +21,7 @@ type Event struct {
 	Timestamp     time.Time
 	AggregateType AggregateType
 	AggregateID   string
-	Version       int64
+	Version       int32
 	Metadata      []byte
 }
 
@@ -95,12 +95,12 @@ func (e *Event) GetAggregateID() string {
 }
 
 // GetVersion is the version of the Aggregate after the Event has been applied.
-func (e *Event) GetVersion() int64 {
+func (e *Event) GetVersion() int32 {
 	return e.Version
 }
 
 // SetVersion set the version of the Aggregate.
-func (e *Event) SetVersion(aggregateVersion int64) {
+func (e *Event) SetVersion(aggregateVersion int32) {
 	e.Version = aggregateVersion
 }
 

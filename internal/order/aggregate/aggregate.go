@@ -5,6 +5,10 @@ import (
 	"github.com/satioO/order-mgmt/pkg/es"
 )
 
+const (
+	OrderAggregateType es.AggregateType = "order"
+)
+
 type OrderAggregate struct {
 	*es.AggregateBase
 	Order *models.Order
@@ -16,18 +20,16 @@ func NewOrderAggregateWithID(id string) *OrderAggregate {
 	}
 
 	aggregate := NewOrderAggregate()
-
 	aggregate.SetID(id)
-	aggregate.Order.PK = id
+	aggregate.Order.ID = id
 	return aggregate
 }
 
 func NewOrderAggregate() *OrderAggregate {
-	orderAggregate := &OrderAggregate{Order: &models.Order{}}
+	orderAggregate := &OrderAggregate{Order: models.NewOrder()}
 	base := es.NewAggregateBase(orderAggregate.When)
-	base.SetType("order")
+	base.SetType(OrderAggregateType)
 	orderAggregate.AggregateBase = base
-
 	return orderAggregate
 }
 
